@@ -107,7 +107,7 @@ let artCraft=
   ];
   
   
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@cluster0.jt86e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -124,11 +124,29 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     let craftArtCollection=client.db('craftArtDB').collection('artDB');
+    app.post('/addCraftItem',async(req,res)=>{
+        let cursor= await craftArtCollection.insertOne(req.body);
+        res.send(cursor)
+    })
+    app.get('/addCraftItem',async(req,res)=>{ 
+      let cursor=craftArtCollection.find(req.body) 
+      let result=await cursor.toArray();
+      res.send(result)
+    })
     app.get('/artCraft',async(req,res)=>{
             res.send(artCraft)
     })
     app.get('/',(req,res)=>{
         res.send('MY Art-Craft-Store-with-Mongo-firebase-CRUD-Operation-server is running');
+    })
+    app.get('/artCraft/:id', (req,res)=>{
+      let id=req.params.id; 
+      let idInt=parseInt(id)
+       let result=artCraft.find(pro=>pro.id===idInt);
+       res.send(result)
+      console.log(result)
+
+
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
